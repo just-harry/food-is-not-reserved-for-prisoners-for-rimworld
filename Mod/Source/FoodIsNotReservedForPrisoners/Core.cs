@@ -149,5 +149,29 @@ namespace FoodIsNotReservedForPrisoners
 			}
 		}
 	}
+
+
+	internal static class Logger
+	{
+		internal static void Error (string text)
+		{
+			Log.Error(Text(text));
+		}
+
+		internal static void Warning (string text)
+		{
+			Log.Warning(Text(text));
+		}
+
+		internal static void Debug (string text)
+		{
+			Log.Message(Text(text));
+		}
+
+		internal static string Text (string text)
+		{
+			return $"|Food Is Not Reserved For Prisoners| {text}";
+		}
+	}
 }
 
