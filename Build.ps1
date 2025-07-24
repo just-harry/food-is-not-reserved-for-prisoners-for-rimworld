@@ -35,6 +35,8 @@ if ($LASTEXITCODE -ne 0)
 
 New-Item -ItemType Directory -Force -Path $BuiltModPath
 
+& (Join-Path $PSScriptRoot 'Languages/Build-LanguageData.ps1') -OutputBasePath (Join-Path $BuiltModPath 'Languages')
+
 Copy-Item -Recurse -Force -PassThru -Path (Join-Path $ModPath '*') -Destination $BuiltModPath
 
 New-Item -ItemType Directory -Force -Path (Join-Path $BuiltModPath 'Assemblies')
