@@ -2,6 +2,19 @@
 $Translations = [Ordered] @{
 	English = [Ordered] @{
 		'Keyed/FoodIsNotReservedForPrisoners' = [Ordered] @{
+			FoodIsNotReservedForPrisoners_AllowAutomaticHaulingDescription = "When enabled, this will permit pawns to automatically haul food that is stored in a prison.`r`nood that is dropped in a prison by a warden, via the food-delivery job, will be temporarily reserved for prisoners."
+			FoodIsNotReservedForPrisoners_AllowAutomaticHaulingQ = "Allow automatic hauling?"
+			FoodIsNotReservedForPrisoners_CeaseReservationForPrisonersDescription = "This will cancel the reservation-for-prisoners for this thing, allowing pawns to automatically haul it."
+			FoodIsNotReservedForPrisoners_CeaseReservationForPrisonersLabel = "Cease reservation-for-prisoners"
+			FoodIsNotReservedForPrisoners_DurationOfReservationForPrisonersForDroppedFood = "Duration of reservation-for-prisoners for food dropped in a prison."
+			FoodIsNotReservedForPrisoners_DurationOfReservationForPrisonersForDroppedFoodDescription = "If automatic hauling is allowed, this controls how long food dropped in prisons will be reserved-for-prisoners for."
+			FoodIsNotReservedForPrisoners_ManuallyDroppedFoodIsTemporarilyReservedForPrisonersDescription = "When enabled, and if automatic hauling is allowed, food that is manually dropped from a pawn's inventory will be temporarily reserved-for-prisoners, just like for food that is dropped in a prison by a warden."
+			FoodIsNotReservedForPrisoners_ManuallyDroppedFoodIsTemporarilyReservedForPrisonersQ = "Manually dropped food is temporarily reserved-for-prisoners?"
+			FoodIsNotReservedForPrisoners_Option = "Option"
+			FoodIsNotReservedForPrisoners_ReservedForPrisonersForPeriod = "Reserved-for-prisoners for {0}."
+			FoodIsNotReservedForPrisoners_Setting = "Setting"
+			FoodIsNotReservedForPrisoners_SettingsCategory = "Food Is Not Reserved For Prisoners"
+			FoodIsNotReservedForPrisoners_UseDefaultQ = "Use Default?"
 		} <# END Keyed/FoodIsNotReservedForPrisoners #>
 	}
 
