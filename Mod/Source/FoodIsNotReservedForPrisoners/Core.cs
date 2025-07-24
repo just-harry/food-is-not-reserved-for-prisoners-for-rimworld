@@ -173,5 +173,38 @@ namespace FoodIsNotReservedForPrisoners
 			return $"|Food Is Not Reserved For Prisoners| {text}";
 		}
 	}
+
+
+	internal static class CodeInstructionExtensions
+	{
+		internal static bool LoadsLocalAddress (this CodeInstruction instruction)
+		{
+			return instruction.LoadsLocalAddress(out int actualIndex);
+		}
+
+		internal static bool LoadsLocalAddress (this CodeInstruction instruction, int localIndex)
+		{
+			return instruction.LoadsLocalAddress(out int actualIndex) ? localIndex == actualIndex : false;
+		}
+
+		internal static bool LoadsLocalAddress (this CodeInstruction instruction, out int localIndex)
+		{
+			uint opcode = (ushort) instruction.opcode.Value;
+
+			if (opcode == 0x0012) /* Ldloca_S */
+			{
+				localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (byte) instruction.operand;
+				return true;
+			}
+			else if (opcode == 0xFE0D) /* Ldloca */
+			{
+				localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (ushort) instruction.operand;
+				return true;
+			}
+
+			localIndex = -1;
+			return false;
+		}
+	}
 }
 
