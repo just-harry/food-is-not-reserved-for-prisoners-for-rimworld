@@ -23,6 +23,13 @@ This mod does two things:
 
 This is achieved via two trivial and inobtrusive Harmony transpiler patches.
 
+But wait—there's more! By popular demand, this mod can actually do three things! (Ooh... fancy).
+If you would prefer your colonists to be able to haul food from prisons automatically, you can make it so by enabling the "Allow automatic hauling" setting in this mod's options.
+
+When the "Allow automatic hauling" setting is enabled, pawns will automatically haul food stored in prisons just as they would any other item.
+There are two exceptions: food delivered to a prison, by a warden, via the "Deliver Food" job will be temporarily reserved-for-prisoners; food dropped in a prison by manually dropping the food from a colonist's inventory will also be temporarily reserved-for-prisoners (this is an opt-out setting).
+These exceptions are in place to prevent pawns from getting stuck in a loop of delivering food only to immediately haul it back to whence it came.
+
 The source-code for this mod can be found at https://github.com/just-harry/food-is-not-reserved-for-prisoners-for-rimworld.
 	</description>
 </ModMetaData>
