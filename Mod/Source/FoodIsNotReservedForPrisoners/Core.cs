@@ -148,6 +148,162 @@ namespace FoodIsNotReservedForPrisoners
 				throw new TranspilerFailedException("The transpiler patch for `HaulAIUtility.PawnCanAutomaticallyHaulFast` failed to apply.");
 			}
 		}
+
+
+	internal static class CompManipulation
+	{
+		public static readonly AccessTools.FieldRef<ThingWithComps, List<ThingComp>> compsOfThingWithComps = (
+			AccessTools.FieldRefAccess<ThingWithComps, List<ThingComp>>("comps")
+		);
+		public static readonly AccessTools.FieldRef<ThingWithComps, Dictionary<Type, ThingComp[]>> compsByTypeOfThingWithComps = (
+			AccessTools.FieldRefAccess<ThingWithComps, Dictionary<Type, ThingComp[]>>("compsByType")
+		);
+
+		internal static bool AddCompTo <Comp> (ThingWithComps thingWithComps, Comp comp, CompProperties props)
+		where Comp : ThingComp
+		{
+			List<ThingComp> comps = (compsOfThingWithComps(thingWithComps) ??= new(1));
+
+			/* This is how `ThingWithComps#InitializeComps` does it. */
+			try
+			{
+				comps.Add(comp);
+				comp.Initialize(props);
+			}
+			catch (Exception error)
+			{
+				Logger.Error($"Failed to initialise a ThingComp: {error}");
+				comps.Remove(comp);
+				return false;
+			}
+
+			Dictionary<Type, ThingComp[]> compsByType = (compsByTypeOfThingWithComps(thingWithComps) ??= new(1));
+
+			ThingComp[] compsOfType;
+			int offset;
+
+			if (compsByType.TryGetValue(typeof(Comp), out compsOfType))
+			{
+				offset = compsOfType.Length;
+				Array.Resize(ref compsOfType, offset + 1);
+			}
+			else
+			{
+				compsOfType = new ThingComp[1];
+				offset = 0;
+			}
+
+			compsOfType[offset] = comp;
+			compsByType[typeof(Comp)] = compsOfType;
+
+			return true;
+		}
+
+		internal static bool RemoveCompFrom <Comp> (ThingWithComps thingWithComps, Comp comp)
+		where Comp : ThingComp
+		{
+			Dictionary<Type, ThingComp[]>? compsByType = compsByTypeOfThingWithComps(thingWithComps);
+
+			if (compsByType != null)
+			{
+				if (compsByType.TryGetValue(typeof(Comp), out ThingComp[] compsOfType))
+				{
+					int count = compsOfType.Length;
+
+					if (count <= 1)
+					{
+						if (count == 1)
+						{
+							if (compsOfType[0] != comp)
+							{
+								goto removedCompFromArray;
+							}
+						}
+
+						compsByType.Remove(typeof(Comp));
+						compsByType.TrimExcess();
+					removedCompFromArray: {}
+					}
+					else
+					{
+						int offset = 0;
+
+						for (;;)
+						{
+							if (offset < count)
+							{
+								if (compsOfType[offset] == comp)
+								{
+									break;
+								}
+
+								++offset;
+							}
+							else
+							{
+								goto handledCompsOfTypeArray;
+							}
+						}
+
+						int excess = count - 1 - offset;
+
+						while (excess-- > 0)
+						{
+							compsOfType[offset] = compsOfType[offset + 1];
+							++offset;
+						}
+
+						Array.Resize(ref compsOfType, count - 1);
+
+						compsByType[typeof(Comp)] = compsOfType;
+					handledCompsOfTypeArray: {}
+					}
+				}
+			}
+
+			List<ThingComp>? comps = compsOfThingWithComps(thingWithComps);
+
+			if (comps != null)
+			{
+				return comps.Remove(comp);
+			}
+
+			return false;
+		}
+
+		internal static void RemoveAlreadyPresentCompFrom <Comp> (ThingWithComps thingWithComps, Comp comp)
+		where Comp : ThingComp
+		{
+			Dictionary<Type, ThingComp[]> compsByType = compsByTypeOfThingWithComps(thingWithComps)!;
+
+			ThingComp[] compsOfType;
+			compsByType.TryGetValue(typeof(Comp), out compsOfType);
+
+			if (compsOfType.Length <= 1)
+			{
+				compsByType.Remove(typeof(Comp));
+				compsByType.TrimExcess();
+			}
+			else
+			{
+				int offset = 0;
+				for (; compsOfType[offset] != comp; ++offset) {}
+
+				int excess = compsOfType.Length - 1 - offset;
+
+				while (excess-- > 0)
+				{
+					compsOfType[offset] = compsOfType[offset + 1];
+					++offset;
+				}
+
+				Array.Resize(ref compsOfType, compsOfType.Length - 1);
+
+				compsByType[typeof(Comp)] = compsOfType;
+			}
+
+			compsOfThingWithComps(thingWithComps)!.Remove(comp);
+		}
 	}
 
 
