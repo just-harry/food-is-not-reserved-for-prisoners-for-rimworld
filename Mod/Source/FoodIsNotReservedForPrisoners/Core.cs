@@ -52,6 +52,12 @@ namespace FoodIsNotReservedForPrisoners
 				ILGenerator il
 			)
 			{
+				/* Here we're looking for a piece of code that looks like:
+						... isSociallyProper(..., ...) ...
+				   and replacing it with some code that looks like this:
+						... isSociallyProper(..., ...) | true ...
+				*/
+
 				MethodInfo isSociallyProper = typeof(SocialProperness).GetMethod(
 					nameof(SocialProperness.IsSociallyProper),
 					new[] {typeof(Thing), typeof(Pawn)}
@@ -107,6 +113,12 @@ namespace FoodIsNotReservedForPrisoners
 				ILGenerator il
 			)
 			{
+				/* Here we're looking for a piece of code that looks like:
+						... isSociallyProper(..., ..., ..., ...) ...
+				   and replacing it with some code that looks like this:
+						... isSociallyProper(..., ..., ..., ...) | forced ...
+				*/
+
 				MethodInfo isSociallyProper = typeof(SocialProperness).GetMethod(
 					nameof(SocialProperness.IsSociallyProper),
 					new[] {typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool)}
