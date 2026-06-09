@@ -403,13 +403,55 @@ namespace FoodIsNotReservedForPrisoners
 			}
 		}
 
-		[HarmonyPatch(
-			typeof(HaulAIUtility),
-			nameof(HaulAIUtility.PawnCanAutomaticallyHaulFast),
-			new[] {typeof(Pawn), typeof(Thing), typeof(bool)}
-		)]
+		public static MethodBase FindPawnCanAutomaticallyHaulFastMethod ()
+		{
+			/* Patch 1.6.4850 moved the `SocialProperness.IsSociallyProper` call
+			   from `HaulAIUtility.PawnCanAutomaticallyHaulFast`
+			   to a new `HaulAIUtility.PawnCanAutomaticallyHaulFast_NewTemp` method.
+			   The temporary method has an additional parameter,
+			   so I assume this in preparation for altering the signature
+			   of `PawnCanAutomaticallyHaulFast` in 1.7.
+			   We'll patch `PawnCanAutomaticallyHaulFast_NewTemp` if it's present,
+			   otherwise--in an attempt for forwards-compatibility--we'll check
+			   for what I think `PawnCanAutomaticallyHaulFast` is going to become later on,
+			   and if that fails we'll use the old signature
+			   so as to continue supporting 1.6 versions older than 1.6.4850. */
+
+			if (
+				typeof(HaulAIUtility).GetMethod(
+					"PawnCanAutomaticallyHaulFast_NewTemp",
+					new[] {typeof(Pawn), typeof(Thing), typeof(bool), typeof(bool)}
+				) is {} tempMethod
+			)
+			{
+				return tempMethod;
+			}
+
+			if (
+				typeof(HaulAIUtility).GetMethod(
+					"PawnCanAutomaticallyHaulFast",
+					new[] {typeof(Pawn), typeof(Thing), typeof(bool), typeof(bool)}
+				) is {} targetMethod
+			)
+			{
+				return targetMethod;
+			}
+
+			return typeof(HaulAIUtility).GetMethod(
+				"PawnCanAutomaticallyHaulFast",
+				new[] {typeof(Pawn), typeof(Thing), typeof(bool)}
+			)!;
+		}
+
+		[HarmonyPatch]
 		public static class AllowManualHauling
 		{
+			[HarmonyTargetMethod]
+			static public MethodBase FindMethod ()
+			{
+				return FindPawnCanAutomaticallyHaulFastMethod();
+			}
+
 			[HarmonyTranspiler]
 			public static IEnumerable<CodeInstruction> IgnoreIsSociallyProper (
 				IEnumerable<CodeInstruction> theInstructions,
@@ -464,13 +506,15 @@ namespace FoodIsNotReservedForPrisoners
 			}
 		}
 
-		[HarmonyPatch(
-			typeof(HaulAIUtility),
-			nameof(HaulAIUtility.PawnCanAutomaticallyHaulFast),
-			new[] {typeof(Pawn), typeof(Thing), typeof(bool)}
-		)]
+		[HarmonyPatch]
 		public static class AllowAutomaticHauling
 		{
+			[HarmonyTargetMethod]
+			static public MethodBase FindMethod ()
+			{
+				return FindPawnCanAutomaticallyHaulFastMethod();
+			}
+
 			public static bool IsSociallyProperWrapper (
 				bool resultOfIsSociallyProper,
 				Thing thing,
